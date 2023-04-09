@@ -14,6 +14,7 @@ import ru.otus.util.dto.UserSecurityDto;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 
 @Slf4j
 @Repository
@@ -78,5 +79,18 @@ public class UserRepositoryImpl implements UserRepository {
                 .append("where id = ?");
         UserSecurityDto u = mysqlJdbcTemplate.query(query.toString(), new BeanPropertyRowMapper<>(UserSecurityDto.class), idUser).stream().findFirst().orElse(null);
         return u;
+    }
+
+    @Override
+    public List<UserDto> findUsersByParams(String firstName, String secondName) {
+        firstName = firstName + "%";
+        secondName = secondName + "%";
+        StringBuilder query = new StringBuilder()
+                .append("select u.first_name as firstName, u.second_name as secondName, u.age, u.biography, u.city ")
+                .append("from social_media.users u ")
+                .append("where u.first_name like ? ")
+                .append("and u.second_name like ? ")
+                .append("order by u.id asc");
+        return mysqlJdbcTemplate.query(query.toString(), new BeanPropertyRowMapper<>(UserDto.class), firstName, secondName);
     }
 }
